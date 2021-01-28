@@ -3,7 +3,14 @@ const Score = require('../models/score')
 
 scoresRouter.get('/', async (request, response) => {
     const scores = await Score.find({})
-    response.json(scores.map(score => score.toJSON()))
+
+    if (!request.query.sort || request.query.sort === 'dsc') {
+        return response.json(scores.sort(x => x.score).map(score => score.toJSON()))
+    }
+    else if (request.query.sort === 'asc') {
+        return response.json(scores.sort(x => !x.score).map(score => score.toJSON()))
+    }
+    return response.status(400).json({ error: { message: 'invalid query value' } })
 })
 
 scoresRouter.get('/:id', async (request, response) => {
